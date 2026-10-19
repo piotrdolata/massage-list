@@ -8,10 +8,11 @@
  */
 
 if ( ! isset( $attributes['menuId'] ) || empty( $attributes['menuId'] ) ) {
-	return '<!-- massage-list: no menuId -->';
+	return '<!-- massage-list: no menuId. -->';
 }
 
 $menu_id         = (int) $attributes['menuId'];
+// Uwaga, czasami opcja default ustawia string "0" więc warto to wyciągnąć jawnie
 $parent_id       = isset( $attributes['parentId'] ) ? (int) $attributes['parentId'] : 0;
 $columns_desktop = isset( $attributes['columnsDesktop'] ) ? (int) $attributes['columnsDesktop'] : 3;
 $columns_tablet  = isset( $attributes['columnsTablet'] ) ? (int) $attributes['columnsTablet'] : 3;
@@ -20,20 +21,37 @@ $columns_mobile  = isset( $attributes['columnsMobile'] ) ? (int) $attributes['co
 $menu_items = wp_get_nav_menu_items( $menu_id );
 
 if ( ! $menu_items ) {
-	return '<!-- massage-list: wp_get_nav_menu_items returned false for menu_id ' . $menu_id . ' -->';
+	return '<!-- massage-list: brak elementow w menu -->';
 }
 
 $children_items = array();
 
+// Bardzo ważne w WordPress: kiedy pobieramy menu z wp_get_nav_menu_items,
+// ID wybranego menu_item jest przypisane do $item->ID.
+// Relacja parent-child realizowana jest poprzez pole $item->menu_item_parent
+
 foreach ( $menu_items as $item ) {
-    // wp_get_nav_menu_items returns string for menu_item_parent
+    // Zarówno $item->menu_item_parent jak i $parent_id mogą zachować się różnie ze względu na rzutowanie
 	if ( (int) $item->menu_item_parent === $parent_id ) {
 		$children_items[] = $item;
 	}
 }
 
 if ( empty( $children_items ) ) {
-	return '<!-- massage-list: empty children_items for parent_id ' . $parent_id . ' in menu ' . $menu_id . ' -->';
+    // Jeżeli admin nie wyberze parentId, albo w jakiś sposób wybierze parentId = 0,
+    // to szukamy wszystkich elementów root (menu_item_parent == 0)
+    foreach ( $menu_items as $item ) {
+        if ( (int) $item->menu_item_parent === 0 ) {
+            $children_items[] = $item;
+        }
+    }
+}
+
+if ( empty( $children_items ) ) {
+    // Jeżeli cokolwiek w menu jest zepsute i nic nie pasuje do parent_id ani root,
+    // wyciągamy po prostu wszystko co jest w tym menu, w celach upewnienia się
+    // że w ogóle zawartość się ładuje.
+    $children_items = $menu_items;
 }
 
 $wrapper_classes = array(
