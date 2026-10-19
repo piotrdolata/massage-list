@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Massage List
  * Description:       Wyświetla zawartość submenu wybranego menu jako kafelki.
- * Version:           1.0.2
+ * Version:           1.0.3
  * Author:            Jules
  * Text Domain:       massage-list
  *
@@ -79,10 +79,9 @@ function massage_list_get_menu_items( $request ) {
 
     if ( $menu_items ) {
         foreach ( $menu_items as $item ) {
-            // Uwzględnij również ID elementu w relacji bazy danych
             $result[] = array(
-                'id'       => $item->ID, // To jest post_id w tabeli wp_posts
-                'db_id'    => $item->db_id, // Często w WP menu_item_parent używa tego, a nie ID
+                'id'       => $item->ID,
+                'db_id'    => $item->db_id,
                 'title'    => $item->title,
                 'parent'   => (int) $item->menu_item_parent,
                 'object'   => $item->object,
