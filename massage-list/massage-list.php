@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Massage List
  * Description:       Wyświetla zawartość submenu wybranego menu jako kafelki.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Jules
  * Text Domain:       massage-list
  *
@@ -57,11 +57,13 @@ function massage_list_get_menus( $request ) {
     $menus = wp_get_nav_menus();
     $result = array();
 
-    foreach ( $menus as $menu ) {
-        $result[] = array(
-            'id'   => $menu->term_id,
-            'name' => $menu->name,
-        );
+    if ( $menus ) {
+        foreach ( $menus as $menu ) {
+            $result[] = array(
+                'id'   => $menu->term_id,
+                'name' => $menu->name,
+            );
+        }
     }
 
     return rest_ensure_response( $result );

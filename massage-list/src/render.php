@@ -3,12 +3,12 @@
  * Renderowanie bloku Massage List.
  *
  * @param array $attributes Atrybuty bloku.
- * @param string $content Wewnętrzna zawartość bloku (pusta w tym przypadku).
+ * @param string $content Wewnętrzna zawartość bloku.
  * @param WP_Block $block Obiekt bloku.
  */
 
 if ( ! isset( $attributes['menuId'] ) || empty( $attributes['menuId'] ) ) {
-	return;
+	return '<!-- massage-list: no menuId -->';
 }
 
 $menu_id         = (int) $attributes['menuId'];
@@ -20,20 +20,20 @@ $columns_mobile  = isset( $attributes['columnsMobile'] ) ? (int) $attributes['co
 $menu_items = wp_get_nav_menu_items( $menu_id );
 
 if ( ! $menu_items ) {
-	return;
+	return '<!-- massage-list: wp_get_nav_menu_items returned false for menu_id ' . $menu_id . ' -->';
 }
 
 $children_items = array();
 
-// Szukanie elementów, których rodzicem jest $parent_id
 foreach ( $menu_items as $item ) {
+    // wp_get_nav_menu_items returns string for menu_item_parent
 	if ( (int) $item->menu_item_parent === $parent_id ) {
 		$children_items[] = $item;
 	}
 }
 
 if ( empty( $children_items ) ) {
-	return; // Brak elementów do wyświetlenia
+	return '<!-- massage-list: empty children_items for parent_id ' . $parent_id . ' in menu ' . $menu_id . ' -->';
 }
 
 $wrapper_classes = array(
